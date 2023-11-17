@@ -8,56 +8,58 @@
             margin: 0;
             overflow: hidden;
         }
+
+        svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
     </style>
-    <title>Canvas Example</title>
+    <title>SVG Example</title>
 </head>
 <body>
 
-<canvas id="myCanvas"></canvas>
-<canvas id="historyCanvas" style="position: absolute; top: 0; left: 0;"></canvas>
+<svg id="svgCanvas"></svg>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        // Инициализация основного Canvas
-        const canvas = document.getElementById("myCanvas");
-        const ctx = canvas.getContext("2d");
+        // Инициализация SVG
+        const svg = document.getElementById("svgCanvas");
 
-        // Инициализация Canvas для истории
-        const historyCanvas = document.getElementById("historyCanvas");
-        const historyCtx = historyCanvas.getContext("2d");
-
-        // Задаем размер обоих Canvas
-        canvas.width = historyCanvas.width = window.innerWidth;
-        canvas.height = historyCanvas.height = window.innerHeight;
+        // Задаем размер SVG
+        svg.setAttribute("width", window.innerWidth);
+        svg.setAttribute("height", window.innerHeight);
 
         // Задаем начальные параметры
-        const rectangleWidth = 9;
-        const rectangleHeight = 16;
-        const rectangleX = (canvas.width - rectangleWidth * 50) / 2;
-        const rectangleY = (canvas.height - rectangleHeight * 50) / 2;
+        const rectangleWidth = 828;
+        const rectangleHeight = 1792;
+        const rectangleX = (window.innerWidth - rectangleWidth) / 2;
+        const rectangleY = (window.innerHeight - rectangleHeight) / 2;
         const rectangleBorderColor = "black";
-        const rectangleBorderWidth = 5;
+        const rectangleBorderWidth = 1;
 
-        let circleRadius = 25;
+        let circleRadius = 20;
         let circleX = 0;
         let circleY = 0;
         let circleSpeedX = 0;
         let circleSpeedY = 0;
-        let accelerationFactor = 1.02;
+        let accelerationFactor = 1.05;
         let tickSound = new Audio('tick.mp3');
         let hue = 0;
         let circleBorderColor = "black";
         let lastTime = 0;
         let deltaTime = 0;
 
-        ctx.fillStyle = "white";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "transparent";
-        ctx.strokeStyle = rectangleBorderColor;
-        ctx.lineWidth = rectangleBorderWidth;
-        ctx.fillRect(rectangleX, rectangleY, rectangleWidth * 50, rectangleHeight * 50);
-        ctx.strokeRect(rectangleX, rectangleY, rectangleWidth * 50, rectangleHeight * 50);
-
+        // Создаем прямоугольник
+        const rectangle = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rectangle.setAttribute("x", rectangleX);
+        rectangle.setAttribute("y", rectangleY);
+        rectangle.setAttribute("width", rectangleWidth);
+        rectangle.setAttribute("height", rectangleHeight);
+        rectangle.setAttribute("fill", "transparent");
+        rectangle.setAttribute("stroke", rectangleBorderColor);
+        rectangle.setAttribute("stroke-width", rectangleBorderWidth);
+        svg.appendChild(rectangle);
 
         function getRandomColor() {
             hue = (hue + 0.2) % 360;
@@ -65,13 +67,13 @@
         }
 
         function draw() {
-            if (circleX - circleRadius < rectangleX || circleX + circleRadius > rectangleX + rectangleWidth * 50) {
+            if (circleX - circleRadius < rectangleX || circleX + circleRadius > rectangleX + rectangleWidth) {
                 circleSpeedX = -circleSpeedX * accelerationFactor;
                 circleSpeedY = circleSpeedY * accelerationFactor;
                 tickSound.play();
             }
 
-            if (circleY - circleRadius < rectangleY || circleY + circleRadius > rectangleY + rectangleHeight * 50) {
+            if (circleY - circleRadius < rectangleY || circleY + circleRadius > rectangleY + rectangleHeight) {
                 circleSpeedY = -circleSpeedY * accelerationFactor;
                 circleSpeedX = circleSpeedX * accelerationFactor;
                 tickSound.play();
@@ -80,31 +82,45 @@
             circleX += circleSpeedX
             circleY += circleSpeedY;
 
-            historyCtx.fillStyle = getRandomColor();
-            historyCtx.beginPath();
-            historyCtx.arc(circleX, circleY, circleRadius, 0, Math.PI * 2);
-            historyCtx.fill();
-            historyCtx.stroke();
+            // Сохраняем предыдущее положение круга
+            const prevCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            prevCircle.setAttribute("cx", circleX);
+            prevCircle.setAttribute("cy", circleY);
+            prevCircle.setAttribute("r", circleRadius);
+            prevCircle.setAttribute("fill", getRandomColor());
+            prevCircle.setAttribute("stroke", circleBorderColor);
+            prevCircle.setAttribute("stroke-width", 1); // Ширина обводки
+            svg.appendChild(prevCircle);
+
+            // Перемещаем текущий круг
+            circle.setAttribute("cx", circleX);
+            circle.setAttribute("cy", circleY);
+            circle.setAttribute("fill", getRandomColor());
+            circle.setAttribute("stroke", circleBorderColor);
+            circle.setAttribute("stroke-width", 1); // Ширина обводки
 
             requestAnimationFrame(draw);
         }
 
-        historyCanvas.addEventListener("click", function (event) {
+        // Создаем круг
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("r", circleRadius);
+        svg.appendChild(circle);
+
+        // Обработчик события для запуска анимации по клику
+        svg.addEventListener("click", function (event) {
             circleX = event.clientX;
             circleY = event.clientY;
-            circleSpeedX = 2.5;
-            circleSpeedY = 2.5;
+            circleSpeedX = 3;
+            circleSpeedY = 3;
         });
 
-        historyCanvas.addEventListener("click", function () {
-            recordedChunks = [];
-            mediaRecorder.start();
+        // Обработчик события для очистки холста по клику
+        svg.addEventListener("click", function () {
+            svg.innerHTML = ''; // Очищаем все элементы внутри svg
         });
 
-        historyCanvas.addEventListener("contextmenu", function () {
-            mediaRecorder.stop();
-        });
-
+        // Инициализация анимации
         requestAnimationFrame(draw);
     });
 </script>
