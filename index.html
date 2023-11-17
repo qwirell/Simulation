@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+    <title>Canvas Example</title>
+</head>
+<body>
+
+<canvas id="myCanvas"></canvas>
+<canvas id="historyCanvas" style="position: absolute; top: 0; left: 0;"></canvas>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Инициализация основного Canvas
+        const canvas = document.getElementById("myCanvas");
+        const ctx = canvas.getContext("2d");
+
+        // Инициализация Canvas для истории
+        const historyCanvas = document.getElementById("historyCanvas");
+        const historyCtx = historyCanvas.getContext("2d");
+
+        // Задаем размер обоих Canvas
+        canvas.width = historyCanvas.width = window.innerWidth;
+        canvas.height = historyCanvas.height = window.innerHeight;
+
+        // Задаем начальные параметры
+        const rectangleWidth = 9;
+        const rectangleHeight = 16;
+        const rectangleX = (canvas.width - rectangleWidth * 50) / 2;
+        const rectangleY = (canvas.height - rectangleHeight * 50) / 2;
+        const rectangleBorderColor = "black";
+        const rectangleBorderWidth = 5;
+
+        let circleRadius = 25;
+        let circleX = 0;
+        let circleY = 0;
+        let circleSpeedX = 0;
+        let circleSpeedY = 0;
+        let accelerationFactor = 1.02;
+        let tickSound = new Audio('tick.mp3');
+        let hue = 0;
+        let circleBorderColor = "black";
+        let lastTime = 0;
+        let deltaTime = 0;
+
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "transparent";
+        ctx.strokeStyle = rectangleBorderColor;
+        ctx.lineWidth = rectangleBorderWidth;
+        ctx.fillRect(rectangleX, rectangleY, rectangleWidth * 50, rectangleHeight * 50);
+        ctx.strokeRect(rectangleX, rectangleY, rectangleWidth * 50, rectangleHeight * 50);
+
+
+        function getRandomColor() {
+            hue = (hue + 0.2) % 360;
+            return `hsl(${hue}, 100%, 50%)`;
+        }
+
+        function draw() {
+            if (circleX - circleRadius < rectangleX || circleX + circleRadius > rectangleX + rectangleWidth * 50) {
+                circleSpeedX = -circleSpeedX * accelerationFactor;
+                circleSpeedY = circleSpeedY * accelerationFactor;
+                tickSound.play();
+            }
+
+            if (circleY - circleRadius < rectangleY || circleY + circleRadius > rectangleY + rectangleHeight * 50) {
+                circleSpeedY = -circleSpeedY * accelerationFactor;
+                circleSpeedX = circleSpeedX * accelerationFactor;
+                tickSound.play();
+            }
+
+            circleX += circleSpeedX
+            circleY += circleSpeedY;
+
+            historyCtx.fillStyle = getRandomColor();
+            historyCtx.beginPath();
+            historyCtx.arc(circleX, circleY, circleRadius, 0, Math.PI * 2);
+            historyCtx.fill();
+            historyCtx.stroke();
+
+            requestAnimationFrame(draw);
+        }
+
+        historyCanvas.addEventListener("click", function (event) {
+            circleX = event.clientX;
+            circleY = event.clientY;
+            circleSpeedX = 2.5;
+            circleSpeedY = 2.5;
+        });
+
+        historyCanvas.addEventListener("click", function () {
+            recordedChunks = [];
+            mediaRecorder.start();
+        });
+
+        historyCanvas.addEventListener("contextmenu", function () {
+            mediaRecorder.stop();
+        });
+
+        requestAnimationFrame(draw);
+    });
+</script>
+
+</body>
+</html>
