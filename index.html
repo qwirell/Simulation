@@ -44,7 +44,8 @@
         let circleSpeedX = 0;
         let circleSpeedY = 0;
         let accelerationFactor = 1.05;
-        let tickSound = new Audio('tick.mp3');
+        let tickSound = new Audio('tick4.mp3');
+        let bgSound = new Audio('sound.mp3');
         let hue = 0;
         let circleBorderColor = "black";
         let lastTime = 0;
@@ -70,12 +71,16 @@
             if (circleX - circleRadius < rectangleX || circleX + circleRadius > rectangleX + rectangleWidth) {
                 circleSpeedX = -circleSpeedX * accelerationFactor;
                 circleSpeedY = circleSpeedY * accelerationFactor;
+                tickSound.pause();
+                tickSound.currentTime = 0;
                 tickSound.play();
             }
 
             if (circleY - circleRadius < rectangleY || circleY + circleRadius > rectangleY + rectangleHeight) {
                 circleSpeedY = -circleSpeedY * accelerationFactor;
                 circleSpeedX = circleSpeedX * accelerationFactor;
+                tickSound.pause();
+                tickSound.currentTime = 0;
                 tickSound.play();
             }
 
@@ -124,8 +129,9 @@
         svg.addEventListener("click", function (event) {
             circleX = event.clientX;
             circleY = event.clientY;
-            circleSpeedX = 3;
-            circleSpeedY = 3;
+            circleSpeedX = 2;
+            circleSpeedY = 2;
+            bgSound.play()
         });
 
         // Обработчик события для очистки холста по клику
