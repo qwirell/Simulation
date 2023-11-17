@@ -31,10 +31,10 @@
         svg.setAttribute("height", window.innerHeight);
 
         // Задаем начальные параметры
-        const rectangleWidth = 828;
-        const rectangleHeight = 1792;
-        const rectangleX = (window.innerWidth - rectangleWidth) / 2;
-        const rectangleY = (window.innerHeight - rectangleHeight) / 2;
+        let rectangleWidth = window.innerWidth ; // Ширина прямоугольника как 80% ширины экрана
+        let rectangleHeight = window.innerHeight; // Высота прямоугольника как 50% высоты экрана
+        const rectangleX = 0;
+        const rectangleY = 0;
         const rectangleBorderColor = "black";
         const rectangleBorderWidth = 1;
 
@@ -79,7 +79,7 @@
                 tickSound.play();
             }
 
-            circleX += circleSpeedX
+            circleX += circleSpeedX;
             circleY += circleSpeedY;
 
             // Сохраняем предыдущее положение круга
@@ -106,6 +106,19 @@
         const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         circle.setAttribute("r", circleRadius);
         svg.appendChild(circle);
+
+        // Обработчик изменения размеров экрана
+        window.addEventListener("resize", function () {
+            // Обновляем размеры прямоугольника при изменении размеров окна
+            rectangleWidth = window.innerWidth ;
+            rectangleHeight = window.innerHeight;
+            rectangle.setAttribute("width", rectangleWidth);
+            rectangle.setAttribute("height", rectangleHeight);
+
+            // Обновляем размеры SVG
+            svg.setAttribute("width", window.innerWidth);
+            svg.setAttribute("height", window.innerHeight);
+        });
 
         // Обработчик события для запуска анимации по клику
         svg.addEventListener("click", function (event) {
